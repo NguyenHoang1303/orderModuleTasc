@@ -24,6 +24,7 @@ public class Order extends BaseEntity{
 
     private double totalPrice;
     private String address;
+    private String name;
     private String phone;
     private String email;
     private int checkOut;
