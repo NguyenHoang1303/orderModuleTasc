@@ -18,8 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
-import static com.example.ordermodule.queue.Config.DIRECT_EXCHANGE;
-import static com.example.ordermodule.queue.Config.DIRECT_ROUTING_KEY_ORDER;
+import static com.example.ordermodule.queue.Config.*;
 
 @RestController
 @RequestMapping("api/v1/order")
