@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Setter
 public class BaseEntity {
 
-    private int isRemove;
+    private String isRemove;
     private LocalDate createdAt;
     private LocalDate updateAt;
     private LocalDate deleteAt;
