@@ -4,7 +4,7 @@ package com.example.ordermodule.queue;
 import com.example.ordermodule.dto.PaymentDto;
 import com.example.ordermodule.fcm.FCMService;
 import com.example.ordermodule.fcm.PnsRequest;
-import com.example.ordermodule.service.OrderService;
+import com.example.ordermodule.service.OrderServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import static com.example.ordermodule.queue.Config.QUEUE_PAY;
 public class ReceiveMessage {
 
     @Autowired
-    OrderService orderService;
+    OrderServiceImpl orderService;
 
     @Autowired
     private FCMService fcmService;

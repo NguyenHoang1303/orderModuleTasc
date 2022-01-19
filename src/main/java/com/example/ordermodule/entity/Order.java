@@ -4,6 +4,7 @@ package com.example.ordermodule.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Entity
 @Getter
@@ -22,12 +23,11 @@ public class Order extends BaseEntity{
     @Column(name = "user_id")
     private Long userId;
 
-    private double totalPrice;
+    private BigDecimal totalPrice;
     private String address;
     private String name;
     private String phone;
     private String email;
-    private String device_token;
     private String paymentStatus;
     private String orderStatus;
 

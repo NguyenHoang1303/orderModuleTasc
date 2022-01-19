@@ -24,6 +24,7 @@ public class ProductController {
     @Autowired
     ProductRepo productRepo;
 
+
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity getAll(@RequestParam(name = "page", defaultValue = "1") int page,
                                 @RequestParam(name = "pageSize", defaultValue = "9") int pageSize

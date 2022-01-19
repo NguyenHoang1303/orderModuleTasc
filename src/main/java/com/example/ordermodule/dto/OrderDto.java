@@ -3,6 +3,7 @@ package com.example.ordermodule.dto;
 import com.example.ordermodule.entity.Order;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 
 @Getter
@@ -14,7 +15,7 @@ public class OrderDto {
 
     private Long orderId;
     private Long userId;
-    private double totalPrice;
+    private BigDecimal totalPrice;
     private String checkout;
     private String status;
     private String device_token;
@@ -28,6 +29,5 @@ public class OrderDto {
         this.totalPrice = order.getTotalPrice();
         this.checkout = order.getPaymentStatus();
         this.status = order.getOrderStatus();
-        this.device_token = order.getDevice_token();
     }
 }
