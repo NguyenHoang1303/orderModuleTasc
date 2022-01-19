@@ -34,11 +34,7 @@ public class Product{
     @Column(columnDefinition = "TEXT")
     private String thumbnail;
 
-
     private Integer status;
-
-    @Column(name = "is_removed")
-    private int isRemoved;
 
     @Column(name = "created_at")
     private LocalDate createdAt;

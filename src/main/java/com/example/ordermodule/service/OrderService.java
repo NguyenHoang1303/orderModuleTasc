@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDate;
@@ -39,9 +40,9 @@ public class OrderService {
         }
         order.setTotalPrice(totalPrice);
         order.setCreatedAt(LocalDate.now());
-        order.setCheckout(Status.Checkout.UNPAID.name());
-        order.setStatus(Status.Order.PENDING.name());
-        Order orderSave = new Order();
+        order.setPaymentStatus(Status.Payment.UNPAID.name());
+        order.setOrderStatus(Status.Order.PENDING.name());
+        Order orderSave;
         try {
             orderSave = orderRepo.save(order);
             System.out.println(orderSave);
@@ -64,38 +65,36 @@ public class OrderService {
         return orderRepo.findAll(PageRequest.of(page - 1, pageSize, Sort.Direction.DESC, "id"));
     }
 
-    public Order handlerOrder(PaymentDto paymentDto) {
+    @Transactional
+    public void handlerOrderPayment(PaymentDto paymentDto) {
 
-        if (!validationPaymentDto(paymentDto)) return null;
+        if (!validationPaymentDto(paymentDto)) return;
 
         Order orderExist = orderRepo.findById(paymentDto.getOrderId()).orElse(null);
         if (orderExist == null) {
-            System.out.println("Order not found.");
-            return null;
+            System.out.println("Hoá đơn không tìm thấy.");
+            return;
         }
 
-        if (paymentDto.getCheckout().equals(Status.Checkout.PAID.name())) {
-            System.out.println("Order đã thanh toán thành công");
-            orderExist.setCheckout(Status.Checkout.PAID.name());
-            return orderRepo.save(orderExist);
+        if (paymentDto.getPaymentStatus().equals(Status.Payment.UNPAID.name())) {
+            System.out.println("Thanh toán lỗi");
+            return;
         }
-        if (paymentDto.getCheckout().equals(Status.Checkout.UNPAID.name())) {
-            System.out.println("Order thanh toan loi");
-            return orderExist;
-        }
-
         try {
-            System.out.println("Order đã thanh toán thành công");
-            return orderRepo.save(orderExist);
+            if (paymentDto.getPaymentStatus().equals(Status.Payment.PAID.name())) {
+                System.out.println("Thanh toán hoá đơn thành công");
+                orderExist.setPaymentStatus(Status.Payment.PAID.name());
+                orderRepo.save(orderExist);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
 
     private boolean validationPaymentDto(PaymentDto paymentDto) {
-        return paymentDto.getCheckout() != null
-            && paymentDto.getUserId() != null
-            && paymentDto.getOrderId() != null;
+        return paymentDto.getPaymentStatus() != null
+                && paymentDto.getUserId() != null
+                && paymentDto.getOrderId() != null;
     }
 
 

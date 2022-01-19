@@ -26,8 +26,8 @@ public class OrderDto {
         this.orderId = order.getId();
         this.userId = order.getUserId();
         this.totalPrice = order.getTotalPrice();
-        this.checkout = order.getCheckout();
-        this.status = order.getStatus();
+        this.checkout = order.getPaymentStatus();
+        this.status = order.getOrderStatus();
         this.device_token = order.getDevice_token();
     }
 }

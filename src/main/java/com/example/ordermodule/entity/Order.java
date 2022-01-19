@@ -28,8 +28,8 @@ public class Order extends BaseEntity{
     private String phone;
     private String email;
     private String device_token;
-    private String checkout;
-    private String status;
+    private String paymentStatus;
+    private String orderStatus;
 
 
 
