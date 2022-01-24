@@ -2,11 +2,13 @@ package com.example.ordermodule.service;
 
 import com.example.ordermodule.controller.CartController;
 import com.example.ordermodule.dto.OrderDto;
-import com.example.ordermodule.dto.PaymentDto;
 import com.example.ordermodule.entity.Cart;
 import com.example.ordermodule.entity.Order;
+import com.example.ordermodule.entity.OrderDetail;
+import com.example.ordermodule.enums.InventoryStatus;
 import com.example.ordermodule.enums.Status;
 import com.example.ordermodule.repo.OrderRepo;
+import com.example.ordermodule.translate.TranslationService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,12 +20,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
-import static com.example.ordermodule.queue.Config.DIRECT_EXCHANGE;
-import static com.example.ordermodule.queue.Config.DIRECT_ROUTING_KEY_ORDER;
+import static com.example.ordermodule.queue.Config.*;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+
+    @Autowired
+    TranslationService translationService;
 
     @Autowired
     OrderRepo orderRepo;
@@ -35,26 +42,37 @@ public class OrderServiceImpl implements OrderService {
     private RabbitTemplate rabbitTemplate;
 
     @Override
-    public Order create(@RequestBody Order order) {
-        BigDecimal totalPrice = BigDecimal.valueOf(0);
-        for (Cart cart : CartController.cartHashMap.values()) {
-            totalPrice = totalPrice.add(cart.getUnitPrice().multiply(BigDecimal.valueOf(cart.getQuantity())));
-        }
-        order.setTotalPrice(totalPrice);
-        order.setCreatedAt(LocalDate.now());
-        order.setPaymentStatus(Status.Payment.UNPAID.name());
-        order.setOrderStatus(Status.Order.PENDING.name());
+    @Transactional
+    public OrderDto create(@RequestBody Order order) {
         Order orderSave;
         try {
             orderSave = orderRepo.save(order);
-            System.out.println(orderSave);
-            System.out.println(new OrderDto(orderSave));
-            rabbitTemplate.convertAndSend(DIRECT_EXCHANGE, DIRECT_ROUTING_KEY_ORDER, new OrderDto(orderSave));
+            BigDecimal totalPrice = BigDecimal.valueOf(0);
+            Set<OrderDetail> orderDetailHashSet = new HashSet<>();
+            for (Cart cart : CartController.cartHashMap.values()) {
+                totalPrice = totalPrice.add(cart.getUnitPrice().multiply(BigDecimal.valueOf(cart.getQuantity())));
+                OrderDetail orderDetail = new OrderDetail(cart);
+//                orderDetail.setOrderId(orderSave.getId());
+                orderDetailHashSet.add(orderDetail);
+            }
+
+            if (totalPrice.compareTo(BigDecimal.valueOf(0)) <= 0) {
+                throw new RuntimeException("vui lòng chọn sản phẩm để thanh toán");
+            }
+            order.setTotalPrice(totalPrice);
+            order.setCreatedAt(LocalDate.now());
+            order.setPaymentStatus(Status.Payment.UNPAID.name());
+            order.setOrderStatus(Status.Order.PENDING.name());
+            order.setInventoryStatus(InventoryStatus.PENDING.name());
+            order.setOrderDetails(orderDetailHashSet);
+
+            OrderDto orderDto = new OrderDto(orderSave);
+            rabbitTemplate.convertAndSend(DIRECT_EXCHANGE, DIRECT_SHARE_ROUTING_KEY, orderDto);
             cartController.clear();
+            return orderDto;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
-        return orderSave;
     }
 
     @Override
@@ -69,36 +87,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional
-    public void handlerOrderPayment(PaymentDto paymentDto) {
-
-        if (!validationPaymentDto(paymentDto)) return;
-
-        Order orderExist = orderRepo.findById(paymentDto.getOrderId()).orElse(null);
-        if (orderExist == null) {
-            System.out.println("Hoá đơn không tìm thấy.");
-            return;
-        }
-
-        if (paymentDto.getPaymentStatus().equals(Status.Payment.UNPAID.name())) {
-            System.out.println("Thanh toán lỗi");
-            return;
-        }
-        try {
-            if (paymentDto.getPaymentStatus().equals(Status.Payment.PAID.name())) {
-                System.out.println("Thanh toán hoá đơn thành công");
-                orderExist.setPaymentStatus(Status.Payment.PAID.name());
-                orderRepo.save(orderExist);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
+    public Order findById(Long orderId) {
+        return orderRepo.findById(orderId).orElse(null);
     }
 
-    private boolean validationPaymentDto(PaymentDto paymentDto) {
-        return paymentDto.getPaymentStatus() != null
-                && paymentDto.getUserId() != null
-                && paymentDto.getOrderId() != null;
+    @Override
+    public Order save(Order orderExist) {
+        return orderRepo.save(orderExist);
     }
 
 

@@ -4,8 +4,7 @@ package com.example.ordermodule.controller;
 import com.example.ordermodule.entity.Order;
 import com.example.ordermodule.response.RESTPagination;
 import com.example.ordermodule.response.RESTResponse;
-import com.example.ordermodule.service.OrderServiceImpl;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import com.example.ordermodule.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -13,17 +12,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/order")
+@RequestMapping("api/v1/orders")
 public class OrderController {
 
     @Autowired
-    OrderServiceImpl orderService;
+    OrderService orderService;
 
     @Autowired
     CartController cartController;
-
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
 
     @RequestMapping(method = RequestMethod.POST, path = "create")
     public ResponseEntity create(@RequestBody Order order) {
