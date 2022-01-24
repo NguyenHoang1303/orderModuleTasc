@@ -52,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
             for (Cart cart : CartController.cartHashMap.values()) {
                 totalPrice = totalPrice.add(cart.getUnitPrice().multiply(BigDecimal.valueOf(cart.getQuantity())));
                 OrderDetail orderDetail = new OrderDetail(cart);
-//                orderDetail.setOrderId(orderSave.getId());
+                orderDetail.setOrderId(orderSave.getId());
                 orderDetailHashSet.add(orderDetail);
             }
 

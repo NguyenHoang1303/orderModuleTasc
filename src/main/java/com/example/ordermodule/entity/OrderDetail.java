@@ -22,12 +22,12 @@ public class OrderDetail {
     private Long productId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "order_id", insertable = false,updatable = false)
     @JsonIgnore
     private Order order;
 
-//    @Column(name = "order_id")
-//    private Long orderId;
+    @Column(name = "order_id")
+    private Long orderId;
 
     private String productName;
     private int quantity;

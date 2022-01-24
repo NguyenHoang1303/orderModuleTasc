@@ -20,7 +20,7 @@ public class OrderDetailDto {
 
     public OrderDetailDto(OrderDetail orderDetail) {
         this.productId = orderDetail.getProductId();
-//        this.orderId = orderDetail.getOrderId();
+        this.orderId = orderDetail.getOrderId();
         this.productName = orderDetail.getProductName();
         this.quantity = orderDetail.getQuantity();
         this.unitPrice = orderDetail.getUnitPrice();
