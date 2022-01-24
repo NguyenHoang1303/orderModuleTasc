@@ -1,9 +1,9 @@
 package com.example.ordermodule.queue;
 
 
-import com.example.ordermodule.dto.OrderDto;
 import com.example.ordermodule.fcm.FCMService;
 import com.example.ordermodule.service.OrderService;
+import common.event.OrderEvent;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +24,9 @@ public class ReceiveMessage {
     @Autowired
     private FCMService fcmService;
 
-    @RabbitListener(queues = {QUEUE_ORDER_PAY})
-    public void getInfoPayment(OrderDto orderDto) {
-        consumerService.handlerPayment(orderDto);
-        log.info("order nhận payment " + orderDto);
+    @RabbitListener(queues = {QUEUE_ORDER})
+    public void getMessage(OrderEvent orderEvent) {
+        consumerService.handlerMessage(orderEvent);
 //        PnsRequest pnsRequest = new PnsRequest();
 //        pnsRequest.setFcmToken(paymentDto.getDevice_token());
 //        pnsRequest.setContent(paymentDto.getMessage());
@@ -35,11 +34,8 @@ public class ReceiveMessage {
 //        fcmService.pushNotification(pnsRequest);
     }
 
-    @RabbitListener(queues = {QUEUE_ORDER_INVENTORY})
-    public void getInfoInventory(OrderDto orderDto) {
-        consumerService.handlerInventory(orderDto);
-
-
-
-    }
+//    @RabbitListener(queues = {QUEUE_ORDER_INVENTORY})
+//    public void getInfoInventory(OrderDto orderDto) {
+//        consumerService.handlerInventory(orderDto);
+//    }
 }

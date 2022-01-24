@@ -15,7 +15,7 @@ public class I18nConfig {
     @Bean
     public LocaleResolver localeResolver() {
         AcceptHeaderLocaleResolver acceptHeaderLocaleResolver = new AcceptHeaderLocaleResolver();
-        acceptHeaderLocaleResolver.setDefaultLocale(new Locale("vi"));
+        acceptHeaderLocaleResolver.setDefaultLocale(Locale.ENGLISH);
         return acceptHeaderLocaleResolver;
     }
 

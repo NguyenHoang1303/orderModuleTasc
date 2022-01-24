@@ -40,7 +40,12 @@ public class OrderController {
                 .buildData(), HttpStatus.OK);
     }
 
-
+    @RequestMapping(method = RequestMethod.GET, path = "detail")
+    public ResponseEntity getAll(@RequestParam(name = "id") int id) {
+        return new ResponseEntity<>(new RESTResponse.Success()
+                .addData(orderService.findById((long) id))
+                .buildData(), HttpStatus.OK);
+    }
 
 
 }

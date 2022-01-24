@@ -2,6 +2,7 @@ package com.example.ordermodule.service;
 
 import com.example.ordermodule.controller.CartController;
 import com.example.ordermodule.dto.OrderDto;
+import common.event.OrderEvent;
 import com.example.ordermodule.entity.Cart;
 import com.example.ordermodule.entity.Order;
 import com.example.ordermodule.entity.OrderDetail;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -66,10 +66,9 @@ public class OrderServiceImpl implements OrderService {
             order.setInventoryStatus(InventoryStatus.PENDING.name());
             order.setOrderDetails(orderDetailHashSet);
 
-            OrderDto orderDto = new OrderDto(orderSave);
-            rabbitTemplate.convertAndSend(DIRECT_EXCHANGE, DIRECT_SHARE_ROUTING_KEY, orderDto);
+            rabbitTemplate.convertAndSend(DIRECT_EXCHANGE, DIRECT_SHARE_ROUTING_KEY, new OrderEvent(orderSave));
             cartController.clear();
-            return orderDto;
+            return new OrderDto(orderSave);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

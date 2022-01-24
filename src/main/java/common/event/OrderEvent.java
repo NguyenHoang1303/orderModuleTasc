@@ -1,5 +1,6 @@
-package com.example.ordermodule.dto;
+package common.event;
 
+import com.example.ordermodule.dto.OrderDetailDto;
 import com.example.ordermodule.entity.Order;
 import lombok.*;
 
@@ -12,18 +13,20 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class OrderDto {
+public class OrderEvent {
 
     private Long orderId;
     private Long userId;
-    private Set<OrderDetailDto> orderDetails = new HashSet<>();
+    private Set<OrderDetailEvent> orderDetailEvents = new HashSet<>();
     private BigDecimal totalPrice;
     private String paymentStatus;
     private String inventoryStatus;
     private String orderStatus;
     private String device_token;
+    private String message;
+    private String queueName;
 
-    public OrderDto(Order order) {
+    public OrderEvent(Order order) {
         this.orderId = order.getId();
         this.userId = order.getUserId();
         this.totalPrice = order.getTotalPrice();
@@ -31,7 +34,7 @@ public class OrderDto {
         this.inventoryStatus = order.getInventoryStatus();
         this.orderStatus = order.getOrderStatus();
         order.getOrderDetails().forEach(orderDetail -> {
-            this.orderDetails.add(new OrderDetailDto(orderDetail));
+            this.orderDetailEvents.add(new OrderDetailEvent(orderDetail));
         });
     }
 
