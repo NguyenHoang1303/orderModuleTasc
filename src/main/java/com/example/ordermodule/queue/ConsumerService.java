@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.example.ordermodule.constant.KeyI18n.ORDER_NOTFOUND;
 import static com.example.ordermodule.queue.Config.*;
 
 @Service
@@ -33,14 +34,12 @@ public class ConsumerService {
             if (!orderEvent.validationPayment()) return;
             Order orderExist = orderService.findById(orderEvent.getOrderId());
             if (orderExist == null) {
-                log.error(translationService.translate("order.error.notfound"));
+                log.error(translationService.translate(ORDER_NOTFOUND));
                 return;
             }
-
             if (orderEvent.getQueueName().equals(QUEUE_PAY)) {
                 orderExist.setPaymentStatus(orderEvent.getPaymentStatus());
             }
-
             if (orderEvent.getQueueName().equals(QUEUE_INVENTORY)) {
                 orderExist.setInventoryStatus(orderEvent.getInventoryStatus());
             }

@@ -33,10 +33,10 @@ public class OrderDetail {
     private int quantity;
     private BigDecimal unitPrice;
 
-    public OrderDetail(Cart cart) {
-        this.productId = cart.getProductId();
-        this.productName = cart.getName();
-        this.unitPrice = cart.getUnitPrice();
-        this.quantity = cart.getQuantity();
+    public OrderDetail(CartItem cartItem) {
+        this.productId = cartItem.getProductId();
+        this.productName = cartItem.getName();
+        this.unitPrice = cartItem.getUnitPrice();
+        this.quantity = cartItem.getQuantity();
     }
 }

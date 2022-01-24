@@ -2,14 +2,14 @@ package com.example.ordermodule.service;
 
 import com.example.ordermodule.controller.CartController;
 import com.example.ordermodule.dto.OrderDto;
-import common.event.OrderEvent;
-import com.example.ordermodule.entity.Cart;
+import com.example.ordermodule.entity.CartItem;
 import com.example.ordermodule.entity.Order;
 import com.example.ordermodule.entity.OrderDetail;
 import com.example.ordermodule.enums.InventoryStatus;
 import com.example.ordermodule.enums.Status;
 import com.example.ordermodule.repo.OrderRepo;
 import com.example.ordermodule.translate.TranslationService;
+import common.event.OrderEvent;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,13 +24,12 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.example.ordermodule.queue.Config.*;
+import static com.example.ordermodule.constant.KeyI18n.ORDER_NOT_PRODUCT;
+import static com.example.ordermodule.queue.Config.DIRECT_EXCHANGE;
+import static com.example.ordermodule.queue.Config.DIRECT_SHARE_ROUTING_KEY;
 
 @Service
 public class OrderServiceImpl implements OrderService {
-
-    @Autowired
-    TranslationService translationService;
 
     @Autowired
     OrderRepo orderRepo;
@@ -39,7 +38,10 @@ public class OrderServiceImpl implements OrderService {
     CartController cartController;
 
     @Autowired
-    private RabbitTemplate rabbitTemplate;
+    RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    TranslationService translationService;
 
     @Override
     @Transactional
@@ -49,15 +51,15 @@ public class OrderServiceImpl implements OrderService {
             orderSave = orderRepo.save(order);
             BigDecimal totalPrice = BigDecimal.valueOf(0);
             Set<OrderDetail> orderDetailHashSet = new HashSet<>();
-            for (Cart cart : CartController.cartHashMap.values()) {
-                totalPrice = totalPrice.add(cart.getUnitPrice().multiply(BigDecimal.valueOf(cart.getQuantity())));
-                OrderDetail orderDetail = new OrderDetail(cart);
+            for (CartItem cartItem : CartController.cartHashMap.values()) {
+                totalPrice = totalPrice.add(cartItem.getUnitPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+                OrderDetail orderDetail = new OrderDetail(cartItem);
                 orderDetail.setOrderId(orderSave.getId());
                 orderDetailHashSet.add(orderDetail);
             }
 
             if (totalPrice.compareTo(BigDecimal.valueOf(0)) <= 0) {
-                throw new RuntimeException("vui lòng chọn sản phẩm để thanh toán");
+                throw new RuntimeException(translationService.translate(ORDER_NOT_PRODUCT));
             }
             order.setTotalPrice(totalPrice);
             order.setCreatedAt(LocalDate.now());

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class Cart {
+public class CartItem {
 
     private Long productId;
     private String name;
