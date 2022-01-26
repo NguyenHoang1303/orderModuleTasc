@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.example.ordermodule.constant.KeyI18n.ORDER_NOT_PRODUCT;
@@ -35,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
     OrderRepo orderRepo;
 
     @Autowired
-    CartController cartController;
+    CartService cartService;
 
     @Autowired
     RabbitTemplate rabbitTemplate;
@@ -45,13 +46,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderDto create(@RequestBody Order order) {
+    public OrderDto create(Order order) {
         Order orderSave;
         try {
             orderSave = orderRepo.save(order);
             BigDecimal totalPrice = BigDecimal.valueOf(0);
             Set<OrderDetail> orderDetailHashSet = new HashSet<>();
-            for (CartItem cartItem : CartController.cartHashMap.values()) {
+            for (CartItem cartItem : CartServiceImpl.cartHashMap.values()) {
                 totalPrice = totalPrice.add(cartItem.getUnitPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
                 OrderDetail orderDetail = new OrderDetail(cartItem);
                 orderDetail.setOrderId(orderSave.getId());
@@ -61,15 +62,15 @@ public class OrderServiceImpl implements OrderService {
             if (totalPrice.compareTo(BigDecimal.valueOf(0)) <= 0) {
                 throw new RuntimeException(translationService.translate(ORDER_NOT_PRODUCT));
             }
-            order.setTotalPrice(totalPrice);
-            order.setCreatedAt(LocalDate.now());
-            order.setPaymentStatus(Status.Payment.UNPAID.name());
-            order.setOrderStatus(Status.Order.PENDING.name());
-            order.setInventoryStatus(InventoryStatus.PENDING.name());
-            order.setOrderDetails(orderDetailHashSet);
+            orderSave.setTotalPrice(totalPrice);
+            orderSave.setCreatedAt(LocalDate.now());
+            orderSave.setPaymentStatus(Status.Payment.UNPAID.name());
+            orderSave.setOrderStatus(Status.Order.PENDING.name());
+            orderSave.setInventoryStatus(InventoryStatus.PENDING.name());
+            orderSave.setOrderDetails(orderDetailHashSet);
 
             rabbitTemplate.convertAndSend(DIRECT_EXCHANGE, DIRECT_SHARE_ROUTING_KEY, new OrderEvent(orderSave));
-            cartController.clear();
+            cartService.clear();
             return new OrderDto(orderSave);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -95,6 +96,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order save(Order orderExist) {
         return orderRepo.save(orderExist);
+    }
+
+    @Override
+    public List findOrderByUserId(long userId) {
+        return orderRepo.findOrderByUserId(userId);
     }
 
 

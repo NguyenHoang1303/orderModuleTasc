@@ -43,27 +43,27 @@ public class ConsumerService {
             if (orderEvent.getQueueName().equals(QUEUE_INVENTORY)) {
                 orderExist.setInventoryStatus(orderEvent.getInventoryStatus());
             }
-            handlerOrder(orderExist);
+            handlerOrder(orderExist.getId());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
 
     @Transactional
-    public void handlerOrder(Order order) {
-        Order store = orderService.findById(order.getId());
+    public void handlerOrder(Long orderId) {
+        Order order = orderService.findById(orderId);
         try {
             if (order.getPaymentStatus().equals(PaymentStatus.PAID.name())
                     && order.getInventoryStatus().equals(InventoryStatus.OUT_OF_STOCK.name())) {
                 order.setPaymentStatus(PaymentStatus.REFUND.name());
-                rabbitTemplate.convertAndSend(DIRECT_EXCHANGE, DIRECT_ROUTING_KEY_PAY, new OrderEvent(store));
+                rabbitTemplate.convertAndSend(DIRECT_EXCHANGE, DIRECT_ROUTING_KEY_PAY, new OrderEvent(order));
                 return;
             }
 
             if (order.getPaymentStatus().equals(PaymentStatus.FAIL.name())
                     && order.getInventoryStatus().equals(InventoryStatus.DONE.name())) {
                 order.setInventoryStatus(InventoryStatus.RETURN.name());
-                rabbitTemplate.convertAndSend(DIRECT_EXCHANGE, DIRECT_ROUTING_KEY_INVENTORY, new OrderEvent(store));
+                rabbitTemplate.convertAndSend(DIRECT_EXCHANGE, DIRECT_ROUTING_KEY_INVENTORY, new OrderEvent(order));
             }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());

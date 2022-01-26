@@ -18,9 +18,6 @@ public class OrderController {
     @Autowired
     OrderService orderService;
 
-    @Autowired
-    CartController cartController;
-
     @RequestMapping(method = RequestMethod.POST, path = "create")
     public ResponseEntity create(@RequestBody Order order) {
         return new ResponseEntity<>(
@@ -41,9 +38,17 @@ public class OrderController {
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "detail")
-    public ResponseEntity getAll(@RequestParam(name = "id") int id) {
+    public ResponseEntity getDetail(@RequestParam(name = "id") int id) {
         return new ResponseEntity<>(new RESTResponse.Success()
                 .addData(orderService.findById((long) id))
+                .buildData(), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "user/detail")
+    public ResponseEntity getOrderByUserId(@RequestParam(name = "userId") int userId) {
+        userId= 451691;
+        return new ResponseEntity<>(new RESTResponse.Success()
+                .addData(orderService.findOrderByUserId(userId))
                 .buildData(), HttpStatus.OK);
     }
 

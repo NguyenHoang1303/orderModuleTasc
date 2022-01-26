@@ -3,6 +3,7 @@ package common.event;
 import com.example.ordermodule.dto.OrderDetailDto;
 import com.example.ordermodule.entity.Order;
 import lombok.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -26,24 +27,25 @@ public class OrderEvent {
     private String message;
     private String queueName;
 
-    public OrderEvent(Order order) {
+    public OrderEvent(@NotNull Order order) {
         this.orderId = order.getId();
         this.userId = order.getUserId();
         this.totalPrice = order.getTotalPrice();
         this.paymentStatus = order.getPaymentStatus();
         this.inventoryStatus = order.getInventoryStatus();
+        this.device_token = "yVv77AFu561i3UONuCqSV:APA91bGXkO2VjRvDmQm2wh45K4WTn18pJn2l6DXWMkUC8FTLHFgBVtbfBBzcYBzq_kXVkoTL8xm_mp3PPLG0hJUxDTIw_x6ZxGx7ShWHnaozyW8JpGQN-KHvip5Cb0P5qYiFj_Ap83rt";
         this.orderStatus = order.getOrderStatus();
         order.getOrderDetails().forEach(orderDetail -> {
             this.orderDetailEvents.add(new OrderDetailEvent(orderDetail));
         });
     }
 
-    public boolean validationPayment(){
+    public boolean validationPayment() {
         return this.totalPrice.compareTo(BigDecimal.valueOf(0)) > 0
                 && this.orderId != null && this.userId != null && this.paymentStatus != null;
     }
 
-    public boolean validationInventory(){
+    public boolean validationInventory() {
         return this.orderId != null && this.orderStatus != null && this.inventoryStatus != null;
     }
 
