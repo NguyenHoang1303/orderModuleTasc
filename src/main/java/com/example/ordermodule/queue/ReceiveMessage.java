@@ -1,6 +1,9 @@
 package com.example.ordermodule.queue;
 
 
+import com.example.ordermodule.entity.Order;
+import com.example.ordermodule.enums.InventoryStatus;
+import com.example.ordermodule.enums.PaymentStatus;
 import com.example.ordermodule.fcm.FCMService;
 import com.example.ordermodule.fcm.PnsRequest;
 import com.example.ordermodule.service.OrderService;
@@ -22,17 +25,12 @@ public class ReceiveMessage {
     @Autowired
     ConsumerService consumerService;
 
-    @Autowired
-    private FCMService fcmService;
+
 
     @RabbitListener(queues = {QUEUE_ORDER})
     public void getMessage(OrderEvent orderEvent) {
         consumerService.handlerMessage(orderEvent);
-        PnsRequest pnsRequest = new PnsRequest();
-        pnsRequest.setFcmToken("dyVv77AFu561i3UONuCqSV:APA91bGXkO2VjRvDmQm2wh45K4WTn18pJn2l6DXWMkUC8FTLHFgBVtbfBBzcYBzq_kXVkoTL8xm_mp3PPLG0hJUxDTIw_x6ZxGx7ShWHnaozyW8JpGQN-KHvip5Cb0P5qYiFj_Ap83rt");
-        pnsRequest.setContent(orderEvent.getMessage() == null ? "fail" : orderEvent.getMessage());
-        pnsRequest.setTitle("Order " + orderEvent.getOrderId());
-        System.out.println(pnsRequest.toString());
-        fcmService.pushNotification(pnsRequest);
+
+
     }
 }

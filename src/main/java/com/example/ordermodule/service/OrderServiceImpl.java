@@ -6,6 +6,8 @@ import com.example.ordermodule.entity.CartItem;
 import com.example.ordermodule.entity.Order;
 import com.example.ordermodule.entity.OrderDetail;
 import com.example.ordermodule.enums.InventoryStatus;
+import com.example.ordermodule.enums.OrderStatus;
+import com.example.ordermodule.enums.PaymentStatus;
 import com.example.ordermodule.enums.Status;
 import com.example.ordermodule.repo.OrderRepo;
 import com.example.ordermodule.translate.TranslationService;
@@ -64,8 +66,8 @@ public class OrderServiceImpl implements OrderService {
             }
             orderSave.setTotalPrice(totalPrice);
             orderSave.setCreatedAt(LocalDate.now());
-            orderSave.setPaymentStatus(Status.Payment.UNPAID.name());
-            orderSave.setOrderStatus(Status.Order.PENDING.name());
+            orderSave.setPaymentStatus(PaymentStatus.UNPAID.name());
+            orderSave.setOrderStatus(OrderStatus.PENDING.name());
             orderSave.setInventoryStatus(InventoryStatus.PENDING.name());
             orderSave.setOrderDetails(orderDetailHashSet);
 

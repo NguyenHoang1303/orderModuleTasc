@@ -1,5 +1,9 @@
 package com.example.ordermodule.enums;
 
 public enum InventoryStatus {
-    DONE, RETURN, PENDING, OUT_OF_STOCK, RETURNED
+    DONE, // trừ kho thành công
+    RETURN, // yêu cầu trả lại hàng
+    RETURNED, // đã trả lại hàng
+    PENDING, // chờ xử ý
+    OUT_OF_STOCK // hết hàng
 }

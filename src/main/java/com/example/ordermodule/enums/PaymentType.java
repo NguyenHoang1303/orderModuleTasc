@@ -1,5 +1,6 @@
 package com.example.ordermodule.enums;
 
 public enum PaymentType {
-    SENDING, REFUND
+    SENDING, // gửi
+    REFUND // trả lại tiền
 }
